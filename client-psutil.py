@@ -107,11 +107,11 @@ def liuliang():
 
         # 遍历每个接口
         for iface in data['interfaces']:
-            # 对于每个接口，遍历每个月的数据
-            for month in iface['traffic']['month']:
+            # 遍历每个接口的每个月的数据
+            for month_data in iface['traffic']['month']:
                 # 累加该月的接收和发送总和
-                rx = month['rx']
-                tx = month['tx']
+                rx = month_data['rx']
+                tx = month_data['tx']
 
                 NET_IN += rx
                 NET_OUT += tx
