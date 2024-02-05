@@ -36,3 +36,12 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
+
+
+```
+apt install chrony -y
+vi /etc/chrony/chrony.conf
+systemctl restart chrony.service
+systemctl status chrony.service
+systemctl enable chrony.service
+```
