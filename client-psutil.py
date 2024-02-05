@@ -28,6 +28,9 @@ import collections
 import psutil
 import sys
 import threading
+import subprocess
+import json
+
 
 def get_uptime():
     return int(time.time() - psutil.boot_time())
@@ -87,19 +90,43 @@ class Traffic:
         return avgrx, avgtx
 
 def liuliang():
-    NET_IN = 0
-    NET_OUT = 0
-    net = psutil.net_io_counters(pernic=True)
-    for k, v in net.items():
-        if 'lo' in k or 'tun' in k \
-                or 'docker' in k or 'veth' in k \
-                or 'br-' in k or 'vmbr' in k \
-                or 'vnet' in k or 'kube' in k:
-            continue
-        else:
-            NET_IN += v[1]
-            NET_OUT += v[0]
-    return NET_IN, NET_OUT
+    try:
+        # 运行vnstat命令获取JSON格式的输出
+        result = subprocess.run(['vnstat', '--json', 'm'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+        # 检查是否有错误输出
+        if result.stderr:
+            print("Error running vnstat:", result.stderr.decode())
+            return None, None
+
+        # 将输出从字节字符串解码为UTF-8字符串，然后加载为JSON
+        data = json.loads(result.stdout.decode('utf-8'))
+
+        NET_IN = 0  # 初始化接收总量
+        NET_OUT = 0  # 初始化发送总量
+
+        # 遍历每个接口
+        for iface in data['interfaces']:
+            # 对于每个接口，遍历每个月的数据
+            for month in iface['traffic']['month']:
+                # 累加该月的接收和发送总和
+                rx = month['rx']
+                tx = month['tx']
+
+                NET_IN += rx
+                NET_OUT += tx
+
+        # 将结果从字节转换为GB
+        # NET_IN_GB = NET_IN / 1024 / 1024 / 1024
+        # NET_OUT_GB = NET_OUT / 1024 / 1024 / 1024
+
+        return NET_IN, NET_OUT
+    except subprocess.CalledProcessError as e:
+        print("Command execution failed:", e)
+        return None, None
+    except json.JSONDecodeError as e:
+        print("JSON decode error:", e)
+        return None, None
 
 def tupd():
     '''
