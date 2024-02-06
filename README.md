@@ -1,5 +1,22 @@
 # debian-12
 
+debian 11 upgrade 12
+``
+https://www.cyberciti.biz/faq/update-upgrade-debian-11-to-debian-12-bookworm/
+``
+
+bbr
+```
+https://wiki.crowncloud.net/?How_to_enable_BBR_on_Debian_12#How+to+Enable+BBR+on+Debian+12
+```
+
+
+docker
+```
+https://docs.docker.com/engine/install/debian/
+```
+
+
 ```
 apt install python3-setuptools -y
 apt install python3-dev -y
